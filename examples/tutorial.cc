@@ -303,6 +303,11 @@ int main(int argc, char* argv[]) {
     Coordinator coordinator;
     coordinator.LoadSettings(argc, argv);
 
+
+    // Establishing connection with sc2
+    coordinator.Connect();
+    coordinator.SetupPorts(2, 5678, false);
+
     Bot bot;
 
 
