@@ -18,6 +18,7 @@ private:
     std::unordered_map<ABILITY_ID, std::string> ability_to_unit = InitializeAbilityIDToUnitNameMapping();
     std::unordered_map<ABILITY_ID, std::string> ability_to_upgrade = InitializeUpgradeMapping();
     std::ofstream outFile;
+    int itemId = 0;
 
 
 public:
@@ -255,9 +256,11 @@ public:
     // Runs whenever a unit is being created
     virtual void OnUnitCreated(const Unit* unit) final {
         auto it = unit_type_data_.find(unit->unit_type);
-        // Tracks when non-army units are created
+
+        // Tracks when non-army/non-upgrades units are created
         if (IsProductionBuilding(unit->unit_type) || IsUpgradeBuilding(unit->unit_type)) {
-            outFile << it->second.name << "," << getCurrentTime() << std::endl;
+            itemId++;
+            outFile << itemId << "," << it->second.name << "," << getCurrentTime() << std::endl; // Output to database
         }
 
 
@@ -268,13 +271,15 @@ public:
         std::string unit = unitTracking();
         float time = getCurrentTime();
 
+        // Tracks when army units and upgrades are created
         if (unit != "empty") {
-            outFile << unit << "," << time << std::endl;
+            itemId++;
+            outFile << itemId << "," << unit << "," << time << std::endl; // Output to database
         }
 
-        if (unit != "empty") {
-            outFile << unit << "," << time << std::endl;
-        }
+        //if (unit != "empty") {
+        //    outFile << unit << "," << time << std::endl; // Output to database
+        //}
     }
 
     // Runs once when the game starts
@@ -292,7 +297,7 @@ public:
         if (!outFile.is_open()) {
             std::cerr << "Failed to open the file for writing!" << std::endl;
         }
-        outFile << "Item,Time\n";
+        outFile << "Id,Item,Time\n";
 
 
     }
