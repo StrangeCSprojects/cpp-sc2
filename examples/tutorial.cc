@@ -18,6 +18,7 @@ private:
     std::unordered_map<ABILITY_ID, std::string> ability_to_unit = InitializeAbilityIDToUnitNameMapping();
     std::unordered_map<ABILITY_ID, std::string> ability_to_upgrade = InitializeUpgradeMapping();
     std::ofstream outFile;
+    std::string previousUnit;
     int itemId = 0;
 
 
@@ -260,7 +261,12 @@ public:
         // Tracks when non-army/non-upgrades units are created
         if (IsProductionBuilding(unit->unit_type) || IsUpgradeBuilding(unit->unit_type)) {
             itemId++;
+            outFile.open("output.csv", std::ios::app);
+            if (!outFile.is_open()) {
+                std::cerr << "Failed to open the file for writing!" << std::endl;
+            }
             outFile << itemId << "," << it->second.name << "," << getCurrentTime() << std::endl; // Output to database
+            outFile.close();
         }
 
 
@@ -274,7 +280,20 @@ public:
         // Tracks when army units and upgrades are created
         if (unit != "empty") {
             itemId++;
-            outFile << itemId << "," << unit << "," << time << std::endl; // Output to database
+            
+            // Temp fix so that only one instance of a unit is output to the csv
+            std::cout << previousUnit << "," << unit << std::endl;
+            if (previousUnit != unit) {
+                outFile.open("output.csv", std::ios::app);
+                if (!outFile.is_open()) {
+                    std::cerr << "Failed to open the file for writing!" << std::endl;
+                }
+                outFile << itemId << "," << unit << "," << time << std::endl; // Output to database
+                outFile.close();
+            }
+            previousUnit = unit;
+
+
         }
 
         //if (unit != "empty") {
@@ -284,7 +303,10 @@ public:
 
     // Runs once when the game starts
     virtual void OnGameStart() final {
-
+        outFile.open("output.csv");
+        if (!outFile.is_open()) {
+            std::cerr << "Failed to open the file for writing!" << std::endl;
+        }
         auto unit_types = Observation()->GetUnitTypeData();
         auto abilities = Observation()->GetAbilityData();
         for (const auto& ability : abilities) {
@@ -293,10 +315,7 @@ public:
         buildingTracking();
 
 
-        outFile.open("output.csv");
-        if (!outFile.is_open()) {
-            std::cerr << "Failed to open the file for writing!" << std::endl;
-        }
+
         outFile << "Id,Item,Time\n";
 
 
