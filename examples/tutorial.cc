@@ -235,8 +235,8 @@ public:
 ;
     }
 
-    // Name needs updating
-    void buildingTracking() {
+    // Maps all of the unit types to an id
+    void mapUnitTypeToId() {
         auto unit_types = Observation()->GetUnitTypeData();
         
         for (const auto unit_type : unit_types) {
@@ -259,8 +259,12 @@ public:
 
         // Tracks when non-army/non-upgrades units are created
         if (IsProductionBuilding(unit->unit_type) || IsUpgradeBuilding(unit->unit_type)) {
-            itemId++;
-            outFile << itemId << "," << it->second.name << "," << getCurrentTime() << std::endl; // Output to database
+            
+            if (getCurrentTime() != 0) { // Stops the function from outputting starting buildings to the csv
+                itemId++;
+                outFile << itemId << "," << it->second.name << "," << getCurrentTime() << std::endl; // Output to database
+            }
+
         }
 
 
@@ -290,7 +294,7 @@ public:
         for (const auto& ability : abilities) {
             ability_id_to_name_[ability.ability_id] = ability.link_name;
         }
-        buildingTracking();
+        mapUnitTypeToId();
 
 
         outFile.open("output.csv");
