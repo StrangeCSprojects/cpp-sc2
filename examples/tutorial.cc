@@ -236,8 +236,8 @@ public:
 ;
     }
 
-    // Name needs updating
-    void buildingTracking() {
+    // Maps all of the unit types to an id
+    void mapUnitTypeToId() {
         auto unit_types = Observation()->GetUnitTypeData();
         
         for (const auto unit_type : unit_types) {
@@ -312,7 +312,7 @@ public:
         for (const auto& ability : abilities) {
             ability_id_to_name_[ability.ability_id] = ability.link_name;
         }
-        buildingTracking();
+        mapUnitTypeToId();
 
 
 
