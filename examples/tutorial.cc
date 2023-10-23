@@ -286,7 +286,6 @@ public:
     // Runs 22.4 times per in-game second
     virtual void OnStep() final {
         std::string unit = unitTracking();
-        std::cout << "testSix" << std::endl;
         float time = getCurrentTime();
 
         // Tracks when army units and upgrades are created
