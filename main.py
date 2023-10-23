@@ -1,5 +1,4 @@
 
-# Import external libraries
 # import pyttsx3 # A text-to-speech library I plan to play around with later on
 # import pytesseract # A library which can help us with retrieving in-game screen info
 # import pyautogui # Some extra GUI tools we could use
@@ -8,29 +7,62 @@ import subprocess
 import time
 
 
-# Function to check if StarCraft 2 is running
+""" Function to check if StarCraft 2 is running"""
 def isStarCraftRunning():
-    process_list = subprocess.Popen(["tasklist"], stdout=subprocess.PIPE, text=True)
+    # Check the list of running processes for StarCraft II
+    process_list = subprocess.Popen(
+        ["tasklist"], stdout=subprocess.PIPE, text=True)
     output = process_list.communicate()[0]
     return any("SC2" in line or "StarCraft" in line for line in output.splitlines())
 
 
-# Create a function to update the GUI
-def updateGui(window, canvas):
+"""A function for updating the resource display"""
+def updateResourceDisplay(window, canvas, resourcesDict):
     if isStarCraftRunning():
-        canvas.itemconfig("status_message", text="StarCraft II is running!")
-        window.after(100, updateGui, window, canvas)  # Check every 1/2 second
+        canvas.delete("resource_text")
+        # Define initial coordinates for the text
+        x = 10
+        y = 10
+        # Iterate through the resourcesDict dictionary
+        for resource, value in resourcesDict.items():
+            # Create and add a text element to the canvas for each resource
+            canvas.create_text(
+                x,
+                y,
+                text=f"{resource}: {value}",
+                fill="white",
+                font=("Helvetica", 12),
+                anchor="w",
+                tags="resource_text"
+            )
+            # Adjust the y-coordinate for the next resource entry
+            y += 20
+        window.after(100, updateResourceDisplay, window, canvas, resourcesDict)
     else:
-        canvas.itemconfig("status_message", text="Closing StarCraft II...")
+        canvas.delete("resource_text")
+        # Add the exit message to the canvas
+        canvas.itemconfig("status_message", text="Closing SC2 Overlay...")
+        canvas.itemconfig("status_message", state="normal")
         window.after(3000, window.destroy)
-        print("Your StarCraft II session has ended.")
+        print("StarCraft II has ended.")
 
 
-# Main entry code
+"""Main method"""
 def main():
+
     # Print to console that overlay has begun
-    print("StarCraft II Overlay has started.")
-    
+    print("StarCraft II has started.")
+
+    # Initialize in-game resource count
+    acquiredResources = {
+        "minerals": 0,
+        "workers": 0,  # SCVs, Probes, or Drones
+        "supply": 0,  # Supply Depots, Pylons, Overlords
+        "vespene gas": 0,
+        "units": 0,
+        "upgrades": 0
+    }
+
     # Create the main window
     window = tk.Tk()
     window.title("StarCraft 2 Overlay")
@@ -39,15 +71,15 @@ def main():
     canvas = tk.Canvas(window, width=400, height=100, bg="black")
     canvas.pack()
 
-    # Add the message to the canvas
-    message = canvas.create_text(
+    # Add the boot-up message
+    canvas.create_text(
         200,
         50,
-        text="Started StarCraft 2",
+        text="Starting SC2 Overlay...",
         fill="white",
         font=("Helvetica", 16),
         anchor="center",
-        tags="status_message"  # Use the correct tag
+        tags="status_message"
     )
 
     # Center the window on the screen
@@ -61,7 +93,8 @@ def main():
     window.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
     # Start checking if StarCraft 2 is running
-    updateGui(window, canvas)
+    window.after(3000, lambda: [canvas.itemconfig(
+        "status_message", state="hidden"), updateResourceDisplay(window, canvas, acquiredResources)])
 
     # Run the GUI main loop
     window.mainloop()
