@@ -45,6 +45,7 @@ public:
         ability_to_unit[sc2::ABILITY_ID::TRAIN_RAVEN] = "Raven";
         ability_to_unit[sc2::ABILITY_ID::TRAIN_BANSHEE] = "Banshee";
         ability_to_unit[sc2::ABILITY_ID::TRAIN_BATTLECRUISER] = "Battlecruiser";
+        ability_to_unit[sc2::ABILITY_ID::MORPH_ORBITALCOMMAND] = "Orbital Command";
 
         // Protoss Units
         ability_to_unit[sc2::ABILITY_ID::TRAIN_PROBE] = "Probe";
@@ -176,6 +177,7 @@ public:
             unit_type == sc2::UNIT_TYPEID::TERRAN_GHOSTACADEMY ||
             unit_type == sc2::UNIT_TYPEID::TERRAN_FUSIONCORE ||
             unit_type == sc2::UNIT_TYPEID::TERRAN_TECHLAB ||
+            unit_type == sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER ||
 
             // Protoss upgrade buildings
             unit_type == sc2::UNIT_TYPEID::PROTOSS_FORGE ||
@@ -202,6 +204,14 @@ public:
             unit_type == sc2::UNIT_TYPEID::ZERG_HIVE;
     }
 
+    // Checks to see if the unit is a normal building, only for terran for now
+    bool IsRegularBuilding(const sc2::UnitTypeID& unit_type) {
+        return unit_type == sc2::UNIT_TYPEID::TERRAN_MISSILETURRET ||
+            unit_type == sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT ||
+            unit_type == sc2::UNIT_TYPEID::TERRAN_REFINERY ||
+            unit_type == sc2::UNIT_TYPEID::TERRAN_SENSORTOWER;
+    }
+
     // Returns what unit is currently being built out of a production building
     std::string unitTracking() {
 
@@ -209,8 +219,9 @@ public:
         for (const auto& unit : my_units) {
             if (IsProductionBuilding(unit->unit_type)) {
                 auto it = unit_type_data_.find(unit->unit_type);
-                if (!unit->orders.empty()) {               
+                if (!unit->orders.empty()) {
                     auto ot = ability_to_unit.find(unit->orders[0].ability_id);
+                    std::cout << "testFive" << std::endl;
                     return ot->second;
                 }
 
@@ -259,13 +270,13 @@ public:
         auto it = unit_type_data_.find(unit->unit_type);
 
         // Tracks when non-army/non-upgrades units are created
-        if (IsProductionBuilding(unit->unit_type) || IsUpgradeBuilding(unit->unit_type)) {
+        if (IsProductionBuilding(unit->unit_type) || IsUpgradeBuilding(unit->unit_type) || IsRegularBuilding(unit->unit_type)) {
             itemId++;
             outFile.open("output.csv", std::ios::app);
             if (!outFile.is_open()) {
                 std::cerr << "Failed to open the file for writing!" << std::endl;
             }
-            outFile << itemId << "," << it->second.name << "," << getCurrentTime() << std::endl; // Output to database
+            outFile << getCurrentTime() << "," << it->second.name  << std::endl; // Output to database
             outFile.close();
         }
 
@@ -282,13 +293,12 @@ public:
             itemId++;
             
             // Temp fix so that only one instance of a unit is output to the csv
-            std::cout << previousUnit << "," << unit << std::endl;
             if (previousUnit != unit) {
                 outFile.open("output.csv", std::ios::app);
                 if (!outFile.is_open()) {
                     std::cerr << "Failed to open the file for writing!" << std::endl;
                 }
-                outFile << itemId << "," << unit << "," << time << std::endl; // Output to database
+                outFile << time << "," << unit << std::endl; // Output to database
                 outFile.close();
             }
             previousUnit = unit;
@@ -316,7 +326,7 @@ public:
 
 
 
-        outFile << "Id,Item,Time\n";
+        outFile << "Time,Unit/Building\n";
 
 
     }
