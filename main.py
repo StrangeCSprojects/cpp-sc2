@@ -1,5 +1,4 @@
 
-# Import external libraries
 # import pyttsx3 # A text-to-speech library I plan to play around with later on
 # import pytesseract # A library which can help us with retrieving in-game screen info
 # import pyautogui # Some extra GUI tools we could use
@@ -13,14 +12,7 @@ import os
 import csv
 
 
-# # Function to check if StarCraft 2 is running
-# def isStarCraftRunning():
-#     process_list = subprocess.Popen(["tasklist"], stdout=subprocess.PIPE, text=True)
-#     output = process_list.communicate()[0]
-#     return any("SC2" in line or "StarCraft" in line for line in output.splitlines())
-
 class BuildOrderOverlay(tk.Tk):
-
     def __init__(self):
         super().__init__()
 
@@ -150,6 +142,5 @@ def check_for_sc2():
             break  # End this function once overlay is launched
 
         time.sleep(1)  # Wait every 5 seconds before checking again
-
 if __name__ == "__main__":
     check_for_sc2()
