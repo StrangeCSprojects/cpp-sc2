@@ -1,5 +1,6 @@
 import os
 import sc2reader
+import sqlite3
 from enum import Enum
 
 # Build order types
@@ -93,13 +94,19 @@ def build_order(replay):
     print(f"Build Order: {build_order.name}")
 
 
+"""Main entry point"""
 def main():
-    # Specify the directory path
-    folder_path = "C:/cpp-sc2/BuildMaster/Replays" # REMEBER TO UPDATE!!!
-
+    
     # Starcraft 2 username
     player_name = "Cstrange"
     
-    replay_analysis(player_name,folder_path)
+    script_dir = os.path.dirname(__file__)
+    replay_folder_path = os.path.join(script_dir, "Replays")
+    replay_analysis(player_name,replay_folder_path)
+    
+    print(script_dir)
+
+
+# Interpret this module
 if __name__ == "__main__":
     main()
